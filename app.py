@@ -75,5 +75,45 @@ def form():
     return render_template_string(html_form, message=message)
 
 
+@app.route("/names")
+def names():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute("SELECT Timestamp, language, problem FROM table1 ORDER BY Timestamp DESC")
+        rows = cur.fetchall()
+        conn.close()
+    except Exception as e:
+        rows = []
+        error = f"❌ Error fetching data: {e}"
+        return render_template_string("<p>{{ error }}</p>", error=error)
+
+    html_list = """
+    <!doctype html>
+    <html>
+      <head><title>All Entries</title></head>
+      <body>
+        <h2>Entries in Database</h2>
+        {% if rows %}
+          <table border="1" cellpadding="5" cellspacing="0">
+            <tr><th>Timestamp</th><th>Language</th><th>Problem</th></tr>
+            {% for row in rows %}
+              <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p>No entries found.</p>
+        {% endif %}
+        <p><a href="/form">Add another entry</a></p>
+      </body>
+    </html>
+    """
+    return render_template_string(html_list, rows=rows)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
