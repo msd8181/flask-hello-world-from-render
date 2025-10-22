@@ -16,11 +16,13 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
 
 @app.route('/')
 def index():
@@ -28,6 +30,7 @@ def index():
     if cur:
         return f'connected to {db_name} successfully!'
     return 'not connected!'
+
 
 @app.route("/form", methods=["GET", "POST"])
 def form():
@@ -74,7 +77,7 @@ def form():
 
     return render_template_string(html_form, message=message)
 
-
+# this is just a temp thing for now
 @app.route("/names")
 def names():
     try:
